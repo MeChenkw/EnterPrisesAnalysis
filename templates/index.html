@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>求职企业速查 — 面试前快速了解一家公司</title>
+<style>
+/* ═══════════ V2 Design System ═══════════ */
+:root {
+  --bg: #0d1117; --card: #161b22; --border: #30363d;
+  --text: #c9d1d9; --heading: #f0f6fc; --muted: #8b949e;
+  --accent: #58a6ff; --success: #3fb950; --warn: #d29922;
+  --error: #f85149; --purple: #a371f7;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+
+/* Header */
+header{text-align:center;padding:32px 0 20px}
+header h1{font-size:2rem;color:var(--heading);letter-spacing:-0.5px}
+header h1 span{color:var(--accent)}
+header p{color:var(--muted);margin-top:6px;font-size:0.95rem}
+
+/* Search */
+.search-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.search-box h2{font-size:1.05rem;margin-bottom:10px;color:var(--heading)}
+.input-group{display:flex;gap:10px}
+.input-group input{flex:1;padding:12px 16px;border:1px solid var(--border);border-radius:8px;background:#0d1117;color:var(--text);font-size:1rem;outline:none;transition:border .2s}
+.input-group input:focus{border-color:var(--accent)}
+.input-group button{padding:12px 28px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:opacity .2s;white-space:nowrap}
+.input-group button:hover{opacity:.85}
+.input-group button:disabled{opacity:.5;cursor:not-allowed}
+
+/* Examples */
+.examples{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.examples button{padding:5px 14px;background:transparent;border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:0.85rem;cursor:pointer;transition:all .2s}
+.examples button:hover{border-color:var(--accent);color:var(--accent);background:rgba(88,166,255,.08)}
+
+/* Status/Progress */
+.status-bar{margin-top:16px;display:none;align-items:center;gap:10px}
+.status-bar.show{display:flex}
+.status-text{color:var(--muted);font-size:0.9rem;flex:1}
+.status-time{color:var(--accent);font-size:0.85rem;font-variant-numeric:tabular-nums}
+.progress-track{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden;max-width:200px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--success));width:0%;border-radius:2px;transition:width .3s}
+.error-msg{padding:12px 16px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);border-radius:8px;color:var(--error);margin-top:12px}
+
+/* ── Results ── */
+.results{display:none;margin-top:16px}
+.results.show{display:block}
+
+/* Overview Card */
+.overview-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;position:relative;overflow:hidden}
+.overview-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.overview-card.risk-low::before{background:var(--success)}
+.overview-card.risk-medium::before{background:var(--warn)}
+.overview-card.risk-high::before{background:var(--error)}
+.overview-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.overview-header h2{font-size:1.3rem;color:var(--heading)}
+.risk-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:0.8rem;font-weight:600}
+.risk-low .risk-badge{background:rgba(63,185,80,.15);color:var(--success)}
+.risk-medium .risk-badge{background:rgba(210,153,34,.15);color:var(--warn)}
+.risk-high .risk-badge{background:rgba(248,81,73,.15);color:var(--error)}
+.overview-summary{font-size:1.05rem;color:var(--text);margin-bottom:12px;line-height:1.7}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.tag{padding:3px 10px;background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.25);border-radius:14px;font-size:0.8rem;color:var(--accent)}
+.risk-flags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.risk-flag{padding:3px 10px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);border-radius:14px;font-size:0.8rem;color:var(--error)}
+
+/* 2-col Grid */
+.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.analysis-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;transition:border .2s}
+.analysis-card:hover{border-color:var(--accent)}
+.card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.card-header h3{font-size:1rem;color:var(--heading)}
+.card-summary{color:var(--text);font-size:0.9rem;line-height:1.65;margin-bottom:8px}
+.card-list{list-style:none;padding:0}
+.card-list li{position:relative;padding:5px 0 5px 16px;font-size:0.88rem;color:var(--text);line-height:1.6;border-bottom:1px solid rgba(48,54,61,.4)}
+.card-list li:last-child{border-bottom:none}
+.card-list li::before{content:'';position:absolute;left:0;top:11px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+
+/* Quality note */
+.quality-note{font-size:0.75rem;padding:1px 8px;border-radius:10px;background:rgba(210,153,34,.1);color:var(--warn);white-space:nowrap}
+
+/* Salary table */
+.salary-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:0.85rem}
+.salary-table th{text-align:left;color:var(--muted);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--border)}
+.salary-table td{padding:6px 8px;border-bottom:1px solid rgba(48,54,61,.3);color:var(--text)}
+.salary-table .src-tag{color:var(--muted);font-size:0.78rem}
+.market-compare{font-size:0.85rem;color:var(--muted);margin-top:4px}
+
+/* Culture */
+.sentiment{font-size:0.9rem;margin-bottom:6px}
+.keywords{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.kw{padding:2px 8px;background:rgba(163,113,247,.1);border:1px solid rgba(163,113,247,.25);border-radius:12px;font-size:0.78rem;color:var(--purple)}
+.pros-cons{font-size:0.85rem;padding:6px 10px;border-radius:6px;margin:4px 0}
+.pros-cons.pro{background:rgba(63,185,80,.08);border-left:3px solid var(--success)}
+.pros-cons.con{background:rgba(248,81,73,.08);border-left:3px solid var(--error)}
+
+/* Interview */
+.difficulty{font-size:0.9rem;margin-bottom:6px}
+.interview-process{font-size:0.88rem;margin-bottom:6px}
+.interview-process ol{margin:4px 0 0 18px;color:var(--text)}
+.interview-process li{padding:2px 0}
+.job-tips{margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.job-tips strong{color:var(--heading);font-size:0.85rem}
+.job-tips ul{list-style:none;padding:0;margin-top:4px}
+.job-tips li{padding:2px 0 2px 14px;position:relative;font-size:0.85rem}
+.job-tips li::before{content:'▸';position:absolute;left:0;color:var(--accent)}
+
+/* Hiring */
+.trend{font-size:0.9rem;margin-bottom:6px}
+.openings{font-size:0.88rem;color:var(--text);margin-bottom:6px}
+.hot-roles{display:flex;flex-wrap:wrap;gap:5px}
+.role-tag{padding:2px 8px;background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.25);border-radius:12px;font-size:0.78rem;color:var(--success)}
+
+/* Sources */
+.sources-inline{font-size:0.78rem;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid rgba(48,54,61,.4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Metrics bar */
+.metrics-bar{display:flex;gap:16px;margin-top:8px;font-size:0.8rem;color:var(--muted)}
+.metrics-bar span{padding:2px 8px;background:rgba(88,166,255,.08);border-radius:4px}
+
+/* Search Results section */
+.search-results-section{margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px}
+.search-results-section h3{font-size:1rem;color:var(--heading);margin-bottom:10px}
+.source-item{padding:7px 0;border-bottom:1px solid rgba(48,54,61,.4);display:flex;gap:10px;align-items:flex-start}
+.source-item:last-child{border-bottom:none}
+.source-type{flex-shrink:0;padding:1px 7px;border-radius:4px;font-size:0.7rem;font-weight:600;text-transform:uppercase}
+.source-type.company_overview{background:rgba(88,166,255,.15);color:var(--accent)}
+.source-type.salary{background:rgba(63,185,80,.15);color:var(--success)}
+.source-type.interview{background:rgba(163,113,247,.15);color:var(--purple)}
+.source-type.culture{background:rgba(210,153,34,.15);color:var(--warn)}
+.source-type.hiring{background:rgba(63,185,80,.15);color:var(--success)}
+.source-type.overview{background:rgba(88,166,255,.15);color:var(--accent)}
+.source-type.general{background:rgba(139,148,158,.15);color:var(--muted)}
+.source-title{font-size:0.82rem}
+.source-title a{color:var(--accent);text-decoration:none}
+.source-title a:hover{text-decoration:underline}
+.source-snippet{font-size:0.78rem;color:var(--muted);line-height:1.5;margin-top:2px}
+
+/* Footer */
+footer{text-align:center;padding:24px 0;color:var(--muted);font-size:0.78rem}
+
+/* Collapsible */
+.toggle-sources{cursor:pointer;color:var(--accent);font-size:0.85rem;user-select:none}
+.toggle-sources:hover{text-decoration:underline}
+.collapsed{display:none}
+
+/* Mobile */
+@media(max-width:768px){.analysis-grid,.input-group{grid-template-columns:1fr;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1><span>🔍</span> 求职企业速查</h1>
+  <p>输入公司名，3 秒内帮你判断值不值得面试</p>
+</header>
+
+<div class="search-box">
+  <h2>🔎 查一家公司</h2>
+  <div class="input-group">
+    <input type="text" id="companyInput" placeholder="输入企业名称，如：字节跳动、比亚迪、拼多多..." autocomplete="off" autofocus>
+    <button id="analyzeBtn" onclick="startAnalysis()">⚡ 快速查询</button>
+  </div>
+  <div class="examples">
+    <span style="color:var(--muted);font-size:0.85rem">热门：</span>
+    <button onclick="quickSearch('字节跳动')">字节跳动</button>
+    <button onclick="quickSearch('比亚迪')">比亚迪</button>
+    <button onclick="quickSearch('拼多多')">拼多多</button>
+    <button onclick="quickSearch('小红书')">小红书</button>
+    <button onclick="quickSearch('理想汽车')">理想汽车</button>
+    <button onclick="quickSearch('米哈游')">米哈游</button>
+  </div>
+  <div class="status-bar" id="statusBar">
+    <span class="status-text" id="statusText">正在搜索...</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="status-time" id="statusTime"></span>
+  </div>
+  <div id="errorMsg" class="error-msg" style="display:none"></div>
+</div>
+
+<div id="results" class="results">
+  <div class="metrics-bar" id="metricsBar"></div>
+  <div id="analysisContent"></div>
+</div>
+
+<footer>求职企业速查 v3.0 — DeepSeek 联网分析，仅供参考</footer>
+</div>
+
+<script>
+let timerInterval = null;
+let startTime = 0;
+
+function quickSearch(name) {
+  document.getElementById('companyInput').value = name;
+  startAnalysis();
+}
+
+function showError(msg) {
+  var el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('statusBar').classList.remove('show');
+}
+function hideError() {
+  document.getElementById('errorMsg').style.display = 'none';
+}
+
+function updateStatus(text, pct) {
+  var bar = document.getElementById('statusBar');
+  bar.classList.add('show');
+  document.getElementById('statusText').textContent = text;
+  document.getElementById('progressFill').style.width = (pct || 10) + '%';
+}
+
+function startTimer() {
+  startTime = Date.now();
+  timerInterval = setInterval(function() {
+    var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    document.getElementById('statusTime').textContent = elapsed + 's';
+  }, 200);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  document.getElementById('statusTime').textContent = elapsed + 's';
+}
+
+async function startAnalysis() {
+  var name = document.getElementById('companyInput').value.trim();
+  if (!name) { showError('请输入企业名称'); return; }
+
+  hideError();
+  document.getElementById('results').classList.remove('show');
+  var btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = '查询中...';
+  updateStatus('🔍 正在搜索 ' + name + ' 的相关信息...', 20);
+  startTimer();
+
+  try {
+    var resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({company: name})
+    });
+    var data = await resp.json();
+    stopTimer();
+
+    if (data.error) {
+      showError(data.error);
+      btn.disabled = false;
+      btn.textContent = '⚡ 快速查询';
+      document.getElementById('statusBar').classList.remove('show');
+      return;
+    }
+
+    // Success
+    document.getElementById('statusText').textContent = '✅ 分析完成';
+    document.getElementById('progressFill').style.width = '100%';
+
+    // Render metrics
+    var metricsHtml =
+      '<span>⏱ ' + (data.total_time || '?') + 's</span>' +
+      '<span>🧠 ' + (data.model || '?') + '</span>';
+    if (data.note) metricsHtml += '<span style="color:var(--warn)">⚠ ' + data.note + '</span>';
+    document.getElementById('metricsBar').innerHTML = metricsHtml;
+
+    // Render analysis
+    document.getElementById('analysisContent').innerHTML = data.analysis_html || '<p class="error-msg">无法生成报告</p>';
+
+    document.getElementById('results').classList.add('show');
+    document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+
+    // Reset after a moment
+    setTimeout(function() {
+      document.getElementById('statusBar').classList.remove('show');
+    }, 3000);
+
+  } catch(e) {
+    stopTimer();
+    showError('网络错误：' + e.message);
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '⚡ 快速查询';
+}
+
+function esc(t) {
+  if (!t) return '';
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('companyInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') startAnalysis();
+});
+</script>
+</body>
+</html>
