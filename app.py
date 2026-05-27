@@ -55,9 +55,11 @@ def api_analyze():
 
     except Exception as e:
         elapsed = round(time.time() - t0, 2)
-        print(f"[API] ❌ Error after {elapsed}s: {e}")
-        import traceback
-        traceback.print_exc()
+        import traceback, sys
+        err_detail = traceback.format_exc()
+        sys.stderr.write(f"[API] ❌ Error after {elapsed}s: {e}\n{err_detail}\n")
+        sys.stderr.flush()
+        # Never return HTML — always JSON even in debug mode
         return jsonify({"error": f"分析失败：{str(e)}"}), 500
 
 
